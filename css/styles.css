@@ -1,0 +1,12 @@
+/*-- GLOBAL SETUP ------------------*/
+* {
+  font-family: 'Minecraft', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  padding: 0;
+  margin: 0;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
