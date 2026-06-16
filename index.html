@@ -6,15 +6,23 @@
     <title>Minecraft: 2D Platform</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/fonts.css">
-    <link rel="icon" type="image/x-icon" href="assets/images/minecraft_Faveicon.png">
+    <link rel="icon" href="assets/images/minecraft_Faveicon.png">
 </head>
 <body>
-    <section>
+    <main>
         <img src="assets/images/minecraft_title.png" alt="">
-    </section>
-    <section>
-        <button>START GAME</button>
-        <a href="game.html">START GAME</a>
-    </section>
+        <a href="game.html" class="mc-button"><span>START GAME</span></a> 
+        <a href="#" class="mc-button"><span>Rules</span></a>
+    </main>       
+    <footer>
+        <a id="audioOnOff" href="#">On/OFF-Song</a> 
+        <a id="bg-toggle" href="#">Switch-BackGround</a>
+        <p>Created for newsTech</p> 
+    </footer>
+    <audio id="menu-music" autoplay loop>
+        <source src="assets/audio/Minecraft Music - Menu.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="JS/script.js"></script>
 </body>
 </html>
