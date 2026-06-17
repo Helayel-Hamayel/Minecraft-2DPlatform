@@ -3,26 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft: 2D Platform</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/fonts.css">
     <link rel="icon" href="assets/images/minecraft_Faveicon.png">
+    <title>Minecraft: 2D Platform</title>
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="JS/script.js" defer></script>
 </head>
 <body>
+    <Section class="TutorialWindow">
+        <section class="topPartMenu">
+            <span>Gameplay tips</span> 
+            <a id="closeTutWind" href="#">x</a>
+        </section>
+        <section class="InsideWindow">
+            <ol>
+            <li><span>Each level demands a unique solution. Plan ahead and play smart!</span></li>
+            <li><span>Use the right tool for the job: <br>
+                <img src="assets/images/texture/tools/diamond_axe.png" alt=""> -> 
+                <img src="assets/images/texture/block/oak_log.png" alt=""> 
+                <img src="assets/images/texture/block/oak_leaves.png" alt=""> <br>
+                <img src="assets/images/texture/tools/diamond_shovel.png" alt=""> -> 
+                <img src="assets/images/texture/block/dirt.png" alt=""> 
+                <img src="assets/images/texture/block/sand.png" alt=""> <br>
+                <img src="assets/images/texture/tools/diamond_sword.png" alt=""> -> 
+                <img src="assets/images/texture/hostile/creeper.png" alt=""> 
+                <img src="assets/images/texture/hostile/skeleton.png" alt="">
+                <img src="assets/images/texture/hostile/zombie.png" alt=""> <br>
+                <img src="assets/images/texture/tools/diamond_pickaxe.png" alt=""> -> 
+                <img src="assets/images/texture/block/stone.png" alt="">
+                <img src="assets/images/texture/block/diamond_ore.png" alt=""> <br>
+                <p><img src="assets/images/texture/block/bedrock.png" alt=""> 
+                   <img src="assets/images/texture/block/obsidian.png" alt=""> are unbreakable</p>
+            </span></li>
+            <!-- axes for trees, pickaxes for stone, swords for monsters, and shovels for dirt -->
+            <li><span>Controls: <br> Use 
+                <img src="assets/images/texture/kb_A.png" alt="">, 
+                <img src="assets/images/texture/kb_D.png" alt=""> to move left, right, and 
+                <img style="width: 30%;" src="assets/images/texture/kb_Space.png" alt=""> to jump!</span></li>
+        </ol> 
+        </section>
+      
+    </Section>
     <main>
-        <img src="assets/images/minecraft_title.png" alt="">
-        <a href="game.html" class="mc-button"><span>START GAME</span></a> 
-        <a href="#" class="mc-button"><span>Rules</span></a>
+        <section>
+            <img id="mainTitle" src="assets/images/minecraft_title.png" alt="">
+            <p class="SplashText">Created By Helayel Hamayel</p>
+        </section>
+        <a href="game.html" id="startGameButton" class="mc-button"><span>START GAME</span></a> 
+        <a href="#" id="showTutorialButton" class="mc-button"><span>Gameplay Tips</span></a>
     </main>       
     <footer>
-        <a id="audioOnOff" href="#">On/OFF-Song</a> 
-        <a id="bg-toggle" href="#">Switch-BackGround</a>
-        <p>Created for newsTech</p> 
+        <section class="LeftSide">
+            <a class="mc-toggleButton audio" id="audioOnOff" href="#"></a> 
+        </section>
+        <section class="RightSide">
+            <a class="mc-toggleButton background" id="bg-toggle" href="#"></a>
+            <p>Created for newstech</p> 
+        </section>
     </footer>
     <audio id="menu-music" autoplay loop>
         <source src="assets/audio/Minecraft Music - Menu.mp3" type="audio/mpeg">
     </audio>
-
-    <script src="JS/script.js"></script>
+    <audio id="buttonSFX">
+        <source src="assets/audio/UI/Click_stereo.mp3" type="audio/mpeg">
+    </audio> 
+    <audio id="buttonSFX_Out">
+        <source src="assets/audio/UI/Click_Out.mp3" type="audio/mpeg">
+    </audio> 
 </body>
 </html>

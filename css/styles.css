@@ -5,6 +5,7 @@
   font-size: 48px;
   padding: 0;
   margin: 0;
+  user-select: none;
 }
 
 *, *::before, *::after {
@@ -13,6 +14,7 @@
 
 :root {
     --current-panorama: url('../assets/images/Panorama/pano_1.png');
+    --x-pos: -29px;
 }
 
 img {
@@ -34,7 +36,7 @@ body {
     background-size: auto 100%;
     background-repeat: repeat-x;
     
-    /* animation: minecraftScroll 180s linear infinite; */
+    animation: minecraftScroll 180s linear infinite;
 }
 
 @keyframes minecraftScroll {
@@ -56,16 +58,51 @@ main {
     gap: 15px; 
 }
 
+main section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;       
+    justify-content: center; 
+}
+
+
 footer {
     width: 100%;
     display: flex;
-    justify-content: center;
-
+    justify-content: space-between;
+    align-items: center;
     gap: 20px;
+    padding: 0px 20px;
     padding-bottom: 20px;
 }
 
+footer p {
+    font-size: 24px;
+    user-select: none;
+    color: white;
+}
+
 /* ------------------ */
+
+.SplashText{
+    color: #ffff00;
+    font-size: 36px;
+    position: absolute;
+    top: 26%;
+    right: 15%;
+    text-shadow: 3px 3px 0px #3f3f00; 
+    user-select: none;
+    animation: minecraftBounce 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes minecraftBounce {
+    0% {
+        transform: rotate(-15deg) scale(1);
+    }
+    100% {
+        transform: rotate(-15deg) scale(1.15); /* Slightly pops out */
+    }
+}
 
 .mc-button {
     display: flex;
@@ -78,7 +115,7 @@ footer {
     transform: scale(3.5); 
     margin: 30px 0; 
 
-    background-image: url('../assets/images/spritesheets/widgets.png'); /* Adjust path to where your widgets.png is */
+    background-image: url('../assets/images/spritesheets/widgets.png');
     background-repeat: no-repeat;
     
     background-position: 0px -66px; 
@@ -98,10 +135,125 @@ footer {
 .mc-button span {
     color: #E0E0E0;
     font-size: 10px; 
-    text-shadow: 2px 2px 0px #3F3F3F; 
+    text-shadow: 1px 1px 0px #3F3F3F; 
     user-select: none;
 }
 
 .mc-button:hover span {
     color: #FFF555;
+}
+
+.mc-button:active span {
+    color: #FFF555;
+}
+
+.mc-toggleButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    width: 27px;
+    height: 26px;
+    
+    transform: scale(2.5); 
+    margin: 40px 20px; 
+
+    background-image: url('../assets/images/spritesheets/Extra.png');
+    background-repeat: no-repeat;
+    image-rendering: pixelated; 
+    
+    text-decoration: none;
+}
+
+.mc-toggleButton.audio{
+    background-position: var(--x-pos) -1px; 
+}
+.mc-toggleButton.background{
+    background-position: -1px -1px; 
+}
+
+.mc-toggleButton.audio:hover {
+    background-position: var(--x-pos) -27px; 
+}
+
+.mc-toggleButton.audio:active {
+    background-position: var(--x-pos) -53px; 
+}
+
+.mc-toggleButton.background:hover {
+    background-position: -1px -27px;
+}
+
+.mc-toggleButton.background:active {
+    background-position: -1px -53px;
+}
+
+.RightSide{
+    display: flex;         
+    flex-direction: column;    
+    justify-content: space-between;  
+    align-items: flex-end;
+}
+
+.LeftSide{
+    display: flex;         
+    flex-direction: column;    
+    justify-content: space-between;  
+    align-items: start;
+}
+.TutorialWindow {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    background-color: rgba(0, 0, 0, 0.6);
+    width: 1008px;  
+    height: 560px;  
+    line-height: 1.25;
+
+    border-radius: 16px;
+
+    background-image: url('../assets/images/spritesheets/window_GUI.png');
+    background-repeat: no-repeat;
+    background-position: top left;
+    background-size: 101.5% 182%;    
+    image-rendering: pixelated;
+}
+
+.topPartMenu{
+    position: absolute;
+    top: 10px;
+    left: 30%;
+    color: rgb(106, 106, 106);
+}
+
+.InsideWindow{
+    color: white; 
+    flex-direction: column; 
+    justify-content: flex-start; 
+    align-items: center;
+    
+    padding: 100px; 
+    margin-top: 75px;
+    height: 78.5%;
+    
+    scrollbar-width: none;
+    overflow-y: auto;    
+    overflow-x: hidden; 
+}
+
+.InsideWindow ol {
+    position: relative;
+    top: -100px;
+}
+
+#closeTutWind{
+    text-decoration: none;
+    color: rgb(37, 37, 37);
+    margin-left: 350px;
+}
+
+li img {
+    width: 7%;
 }
