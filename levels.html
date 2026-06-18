@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft: 2D Platform</title>
+    <link rel="stylesheet" href="css/styles_MC.css">
+    <link rel="stylesheet" href="css/styles_levelSelector.css">
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="icon" type="image/x-icon" href="assets/images/minecraft_Faveicon.png">
+</head>
+<body>
+    <section class="topSection">
+        <a class="mc-toggleButton return" href="index.html"></a>
+        <p>Select Level</p>
+    </section>
+    <section class="centerSection">
+        <form class="level-list">
+            <div class="level-wrapper">
+                <input type="radio" id="lvl1" name="level_select" value="lvl1" checked>
+                <label for="lvl1" class="level-item">
+                    <img src="assets/images/defLevelPic.png" alt="Level 1 Thumbnail" class="level-img">
+                    <div class="level-details">
+                        <span class="level-title">Level 1</span>
+                        <span class="level-description">Body: explain the level 1</span>
+                    </div>
+                </label>
+            </div>
+
+            <div class="level-wrapper">
+                <input type="radio" id="lvl2" name="level_select" value="lvl2">
+                <label for="lvl2" class="level-item">
+                    <img src="assets/images/defLevelPic.png" alt="Level 2 Thumbnail" class="level-img">
+                    <div class="level-details">
+                        <span class="level-title">Level 2</span>
+                        <span class="level-description">Body: explain the level 2</span>
+                    </div>
+                </label>
+            </div>
+
+            <div class="level-wrapper">
+                <input type="radio" id="lvl3" name="level_select" value="lvl3">
+                <label for="lvl3" class="level-item">
+                    <img src="assets/images/defLevelPic.png" alt="Level 3 Thumbnail" class="level-img">
+                    <div class="level-details">
+                        <span class="level-title">level 3</span>
+                        <span class="level-description">Body: explain the level 3</span>
+                    </div>
+                </label>
+            </div>
+        </form> 
+    </section>
+    <section class="bottomSection">
+        <a href="game.html" class="mc-button"><span>Play Selected Level</span></a>
+    </section>
+</body>
+</html>
