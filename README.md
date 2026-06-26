@@ -6,31 +6,29 @@ A lightweight, browser-based 2D recreation of Minecraft built from scratch using
 
 ## 🚀 Key Features
 
-* **Procedural Sine-Wave Generation:** Builds a dynamic layout using a math-driven surface map (`12 + Math.sin(col * 0.1) * 3`). Features a dedicated water basin embedded directly between columns 15 and 20, stone stratum layered with random resource distributions (Coal, Iron, and deep Diamond nodes), and procedural Oak Tree generation.
-* **Pixel-Smooth Performance Modes:** Includes a built-in culling routine that limits processing exclusively to chunks visible inside the running viewport coordinates. Pressing the `L` hotkey instantly activates a high-performance **Solid Box Render Engine**, swapping out high-resolution external PNG paths for hardware-friendly static color hex codes.
-* **Reach-Enforced Interaction Limits:** Utilizes a pixel-precise coordinate mapping bridge to match absolute screen events (`clientX`/`clientY`) against canvas bounds (`getBoundingClientRect()`). Blocks can only be targeted if the absolute distance ($\Delta x, \Delta y$) from the player center satisfies the condition:
-  $$\sqrt{\Delta x^2 + \Delta y^2} \le 112\text{ pixels } (3.5\text{ blocks})$$
-* **Dynamic Hotbar State & Tool Requirements:** Features an interactive 9-slot structural hotbar tracking stack values, tool IDs (`pickaxe`, `shovel`, `axe`), and world block overrides. Striking objects triggers a strict validation process: harvesting Stone or Ore requires a Pickaxe, Dirt requires a Shovel, and Oak Logs require an Axe. Misaligned combinations instantly cancel breaking speed.
-* **Voxel Break Progress Mechanics:** Simulates a visual structural fracture system. Holding Left Click steps up custom vector overlays across three distinct cracking phases ($>15\%$, $>45\%$, and $>75\%$). Letting go of the mouse button instantly purges the tracking states, clearing out surface fatigue.
-* **Granular Gravity & Drop-Through Physics:** Runs on a coordinate validation loop. Solid block blocks apply rigid collision stopbacks against player movement speeds ($V_x = 3$, Gravity = $0.3$, Jump Force = $-9$). Passing over semi-solid layers (Leaves and Wood platforms) blocks falling paths *unless* a dedicated down-crouch modifier is held.
-* **Audio Track Manager:** Employs an index-driven switching pipeline tracking a global sequence array (`[Muted]`, `Sweden`, `Alpha`). Clicking the soundboard interface cycles structural asset streams in real-time, matching updated string states dynamically to active component views.
+* **Procedural World Generation:** Generates a dynamic 2D sandbox world on the fly using smooth sine-wave math curves. It handles everything from surface terrain and a dedicated water basin to deep underground stone layers packed with random ore veins (Coal, Iron, and Diamonds), topped off with procedurally grown Oak trees.
+* **Smart Performance Rendering:** Keeps the game running butter-smooth by culling anything outside your active viewport so the engine doesn't waste resources rendering invisible blocks. If performance ever dips, hitting the `L` key instantly swaps out the heavy PNG textures for fast, flat-color hex boxes.
+* **Strict Mining Reach:** Keeps gameplay fair by enforcing a maximum reach limit. Using clean coordinate math, the game calculates the exact pixel distance between the player's center and the target block—if you're further than 3.5 blocks ($112\text{px}$) away, you can't touch it.
+* **Smart Hotbar & Tool Matching:** Features a fully functional 9-slot hotbar that keeps track of active items, stack sizes, and tools. To keep things realistic, the world enforces a matching tool rule: you'll need a Pickaxe for stone/ores, a Shovel for dirt, and an Axe for logs. Using the wrong tool significantly slows down your mining speed.
+* **Visual Block Breaking Progress:** Simulates realistic block damage when mining. Holding down Left Click progresses the block through three distinct physical cracking overlays ($>15\%$, $>45\%$, and $>75\%$). If you let go of the mouse early, the fatigue resets instantly.
+* **Platformer Physics & Drop-Through Mechanics:** Runs on precise gravity and collision loops ($V_x = 3$, Gravity = $0.3$, Jump Force = $-9$) to make jumping and moving feel solid. It also supports semi-solid platforms like Leaves and Wood, meaning you can walk right over them or hold the down-crouch key (`S`) to drop straight through.
+* **Interactive Audio Track Selector:** Includes a live-switching soundtrack manager loaded with classic tracks like `Sweden` and `Alpha`. Players can click through the custom soundboard UI to swap audio streams or mute the game instantly without breaking the gameplay loop.
 
 ---
 
 ## 📸 Visual Demonstration
 
-### Main Title 
-The entry dashboard parses user-defined constraints before initializing the engine loop. It provides interactive dropdown configurations for custom height/width vectors and handles primary biome initialization:
+### Main Title Screen
+The game kicks off with a classic title dashboard. Before jumping into the world, you can use the interface options to set your custom map size (height and width) and pick your starting biome to customize how the terrain generates.
 
 ![Main Game Menu](assets/images/readmePictures/main.png)
-
 
 ### Custom Setup & Biome Selection
 Choose your generation biome and set custom map constraints directly from the customized bottom interface panel:
 
 ![Biome Selection Screen](assets/images/readmePictures/BiomeSelection.png)
 
-### Game Play & Mining Mechanics
+### Gameplay & Mining Mechanics
 Mine and build elements safely inside a precision-calculated interaction boundary centered around the player asset:
 
 ![Gameplay Mechanics](assets/images/readmePictures/Gameplay.png)
@@ -40,14 +38,14 @@ Mine and build elements safely inside a precision-calculated interaction boundar
 ## 🎮 Controls
 
 | Action / Shortcut | Input Source | Technical System Behavior |
-| :--- | :--- | :--- |
-| **Move Left / Right** | `A` / `D` or `Left` / `Right Arrow` | Adjusts velocity $V_x$ by $\pm 3$ pixels per frame; applies rigid edge corrections. |
-| **Jump** | `Spacebar` / `W` / `Up Arrow` | Applies a jump force vector of `-9` if grounded. Enforces a **450ms movement cooldown** filter. |
-| **Crouch / Drop-Through** | `S` / `Down Arrow` | Activates crouching flag. Allows the player to drop through semi-solid **Wood** and **Leaves** blocks. |
-| **Mine Voxel Element** | `Left Click` | Increments fracture progress by $+2.5\%$ per frame if valid tool condition is met. |
-| **Place Selected Item** | `Right Click` | Drops active block type onto target `AIR` coordinates. Block validation ensures no overlap with player boundaries. |
-| **Hotbar Selection** | Keys `1` through `9` | Changes active array index data, shifting visual selection overlay box by $20\text{px}$ jumps. |
-| **Solid/Texture Toggle** | `L` Key | Switches performance graphics between high-fidelity `.png` assets and low-lag flat colors. |
-| **Pause Game Menu** | `Escape` | Toggles loop cycle update freeze and alters underlying container CSS styles. |
+| :--- | :--- |
+| **Move Left / Right** | `A` / `D` or `Left` / `Right Arrow` | 
+| **Jump** | `Spacebar` / `W` / `Up Arrow` | 
+| **Crouch / Drop-Through** | `S` / `Down Arrow` |
+| **Mine Voxel Element** | `Left Click` | 
+| **Place Selected Item** | `Right Click` | 
+| **Hotbar Selection** | Keys `1` through `9` | 
+| **Solid/Texture Toggle** | `L` Key | 
+| **Pause Game Menu** | `Escape` | 
 
 ---
