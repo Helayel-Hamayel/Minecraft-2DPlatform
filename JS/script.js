@@ -4,6 +4,7 @@ const sfxBtn_Out = document.getElementById("buttonSFX_Out");
 sfxBtn.volume = 0.4;
 sfxBtn_Out.volume = 0.4;
 
+//--------------------------------------------
 // ===== Background panorama in Main Menu =====
 // Toggle different Panoramas
 const panoramas = [
@@ -26,7 +27,7 @@ toggleButton.addEventListener("click", () => {
     panoramas[currentIndex],
   );
 });
-
+//--------------------------------------------
 // ===== Toggle Song on/off in Main Menu =====
 const menuMusic = document.getElementById("menu-music");
 const audioButton = document.getElementById("audioOnOff");
@@ -54,6 +55,7 @@ menuMusic.addEventListener("ended", () => {
   menuMusic.play();
 });
 
+//--------------------------------------------
 // ===== Buttons: SFX interactivity, hiding them when showing tutorial menu =====
 const splashText = document.querySelector(".SplashText");
 const tutorialWindow = document.querySelector(".TutorialWindow");
@@ -63,16 +65,7 @@ const closeTutorialButton = document.getElementById("closeTutWind");
 const startGameButton = document.getElementById("startGameButton");
 const mainTitle = document.getElementById("mainTitle");
 
-// my attempt to simplify the code.
-// document.addEventListener("click", (event) => {
-//   if (
-//     event.target.closest(".mc-button") ||
-//     event.target.closest(".mc-toggleButton")
-//   ) {
-//     console.log("Button clicked via delegation:", event.target);
-//   }
-// });
-
+//--------------------------------------------
 // when clicking on Start game it would cut off the SFX_Click abrubtly.
 // so i put the settimeout lenght exactly as SFX_Click (with bit of room to breath)
 startGameButton.addEventListener("click", (event) => {
@@ -85,6 +78,7 @@ startGameButton.addEventListener("click", (event) => {
   }, 180);
 });
 
+//--------------------------------------------
 // the purpose is to hide the UI Elements that will block the Tutorial window so i decided to hide them
 // and make them appear again when user exits the Tutorial window
 showTutorialButton.addEventListener("click", (event) => {
@@ -112,9 +106,11 @@ closeTutorialButton.addEventListener("click", (event) => {
 function playSfx(special) {
   switch (special) {
     case 0:
+      sfxBtn.currentTime = 0; 
       sfxBtn.play();
       break;
     case 1:
+      sfxBtn_Out.currentTime = 0; 
       sfxBtn_Out.play();
       break;
 
@@ -122,3 +118,4 @@ function playSfx(special) {
       break;
   }
 }
+

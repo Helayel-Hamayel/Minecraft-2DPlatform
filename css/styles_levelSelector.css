@@ -54,10 +54,6 @@ form img {
     width: 96px;
 }
 
-.bottomSection{
-    margin: 0.7%;
-}
-
 /*-- MINECRAFT LEVEL CARD LIST -----*/
 .level-list {
     display: flex;
@@ -86,9 +82,17 @@ form img {
     border-color: #555; 
 }
 
-.level-wrapper input[type="radio"]:checked + .level-item {
+.level-wrapper input[type="radio"]:checked + .level-item  {
     border-color: #ffffff; 
     background-color: rgba(0, 0, 0, 0.7);
+}
+
+.level-wrapper input[type="radio"]:checked + .level-item .level-title {
+    color: #ffffff;
+}
+
+.level-wrapper input[type="radio"]:checked + .level-item .level-description {
+    color: rgba(187, 187, 187, 1.0); 
 }
 
 .level-img {
@@ -109,10 +113,74 @@ form img {
 .level-title {
     font-size: 32px;      
     font-weight: bold;
-    color: #ffffff;
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.level-item:hover .level-title {
+    color: #ffffff; 
 }
 
 .level-description {
     font-size: 20px;      
-    color: #bbbbbb; 
+    color: rgba(187, 187, 187, 0.2); 
 }
+
+.level-item:hover .level-description  {
+    color: rgba(187, 187, 187, 1.0);
+}
+
+/*-- WORLD DIMENSION INPUTS ------------------*/
+.bottomSection {
+    display: flex;
+    /* flex-direction: column; */
+    align-items: center;
+    justify-content: center;
+    margin: 0.7%;
+}
+
+.bottomSection a{
+    margin-right: 350px;
+}
+
+.world-options {
+    display: flex;
+    gap: 20px; /* Spacing between Width box and Height box */
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.input-group label {
+    font-size: 20px; /* Scaled down from the global 48px */
+    text-shadow: 2px 2px #000;
+}
+
+.input-group input {
+    width: 100px;
+    height: 50px;
+    font-size: 24px;
+    text-align: center;
+    background-color: #222;
+    border: 3px solid #555;
+    color: #fff;
+    outline: none;
+}
+
+/* Classic Minecraft focus border highlight */
+.input-group input:focus {
+    border-color: #fff;
+    background-color: #111;
+}
+
+/* Remove default browser spinner arrows from number input */
+.input-group input::-webkit-outer-spin-button,
+.input-group input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+

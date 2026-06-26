@@ -3,9 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="icon" href="assets/images/minecraft_Faveicon.png">
+    <title>Minecraft: 2D Platform</title>
+    <link rel="stylesheet" href="css/styles_game.css">
+    <link rel="stylesheet" href="css/styles_MC.css">
+    <link rel="stylesheet" href="css/fonts.css">
+    <script src="JS/game.js" defer></script>
 </head>
-<body>
-    <span>wip</span>
-</body>
+    <body>
+        <canvas id="gameCanvas"></canvas>
+
+        <section class="hud-container">
+            <section class="hotbar-wrapper">
+                <section class="selector" id="selector"></section>
+                <section class="slots-container" id="slots-container"></section>
+            </section>
+        </section>
+
+        <section id="gameMenu"> 
+            <span>Game Menu</span>
+            <a class="mc-button" id="btgButton" href="#"><span>Back to Game</span></a>
+            <a class="mc-button resetPage" href="game.html"><span>Restart</span></a>
+            <a class="mc-button" id="songButton" href="#"><span>Song Playing: Sweden</span></a>
+            <a class="mc-button resetPage" href="index.html"><span>Return to Main Menu</span></a>
+        </section>
+
+        <audio id="game-music" autoplay loop>
+            <source src="assets/audio/Minecraft Music - Sweden.mp3" type="audio/mpeg">
+        </audio>
+            <audio id="buttonSFX">
+        <source src="assets/audio/UI/Click_stereo.mp3" type="audio/mpeg">
+        <audio id="buttonSFX_Out">
+            <source src="assets/audio/UI/Click_Out.mp3" type="audio/mpeg">
+        </audio>
+    </audio> 
+    </body>
 </html>

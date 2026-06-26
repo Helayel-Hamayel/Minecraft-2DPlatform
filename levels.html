@@ -8,50 +8,66 @@
     <link rel="stylesheet" href="css/styles_levelSelector.css">
     <link rel="stylesheet" href="css/fonts.css">
     <link rel="icon" type="image/x-icon" href="assets/images/minecraft_Faveicon.png">
+    <script src="JS/script_level.js" defer></script>
 </head>
 <body>
     <section class="topSection">
-        <a class="mc-toggleButton return" href="index.html"></a>
-        <p>Select Level</p>
+        <a class="mc-toggleButton return PageChange" id="rtbToMain" href="index.html"></a>
+        <p>Select a Biome</p>
     </section>
     <section class="centerSection">
         <form class="level-list">
-            <div class="level-wrapper">
-                <input type="radio" id="lvl1" name="level_select" value="lvl1" checked>
-                <label for="lvl1" class="level-item">
-                    <img src="assets/images/defLevelPic.png" alt="Level 1 Thumbnail" class="level-img">
-                    <div class="level-details">
-                        <span class="level-title">Level 1</span>
-                        <span class="level-description">Body: explain the level 1</span>
-                    </div>
+            <section class="level-wrapper">
+                <input type="radio" id="Meadow" name="level_select" value="Meadow" checked>
+                <label for="Meadow" class="level-item">
+                    <img src="assets/images/level_Icons/Meadow.png" alt="Meadow Thumbnail" class="level-img">
+                    <section class="level-details">
+                        <span class="level-title">Grassy Meadow</span>
+                        <span class="level-description">A vibrant, flower-carpeted voxel meadow under an open sunlit sky.</span>
+                    </section>
                 </label>
-            </div>
+            </section>
 
-            <div class="level-wrapper">
-                <input type="radio" id="lvl2" name="level_select" value="lvl2">
-                <label for="lvl2" class="level-item">
-                    <img src="assets/images/defLevelPic.png" alt="Level 2 Thumbnail" class="level-img">
-                    <div class="level-details">
-                        <span class="level-title">Level 2</span>
-                        <span class="level-description">Body: explain the level 2</span>
-                    </div>
+            <section class="level-wrapper">
+                <input type="radio" id="Snow" name="level_select" value="Snow">
+                <label for="Snow" class="level-item">
+                    <img src="assets/images/level_Icons/Snow.png" alt="Snow Thumbnail" class="level-img">
+                    <section class="level-details">
+                        <span class="level-title">Snowy plains</span>
+                        <span class="level-description">A vast, silent expanse of pristine white snow blocks, punctuated by frozen ice rivers and sparse, needle-like spruce trees beneath a pale winter sky.</span>
+                    </section>
                 </label>
-            </div>
+            </section>
 
-            <div class="level-wrapper">
-                <input type="radio" id="lvl3" name="level_select" value="lvl3">
-                <label for="lvl3" class="level-item">
-                    <img src="assets/images/defLevelPic.png" alt="Level 3 Thumbnail" class="level-img">
-                    <div class="level-details">
-                        <span class="level-title">level 3</span>
-                        <span class="level-description">Body: explain the level 3</span>
-                    </div>
+            <section class="level-wrapper">
+                <input type="radio" id="Desert" name="level_select" value="Desert">
+                <label for="Desert" class="level-item">
+                    <img src="assets/images/level_Icons/Desert.png" alt="Desert Thumbnail" class="level-img">
+                    <section class="level-details">
+                        <span class="level-title">Desert</span>
+                        <span class="level-description">A sun-baked sea of undulating sand dunes and sharp cacti, broken only by dead bushes and the stark, geometric lines of sandstone cliffs.</span>
+                    </section>
                 </label>
-            </div>
+            </section>
         </form> 
     </section>
     <section class="bottomSection">
-        <a href="game.html" class="mc-button"><span>Play Selected Level</span></a>
+        <a id="playTheGame" class="mc-button PageChange"><span>Play Selected Biome</span></a>
+
+        <section class="world-options">
+            <section class="input-group">
+                <label for="worldWidth">Width:</label>
+                <input type="number" id="worldWidth" name="worldWidth" value="86" min="20" max="250">
+            </section>
+            <section class="input-group">
+                <label for="worldHeight">Height:</label>
+                <input type="number" id="worldHeight" name="worldHeight" value="32" min="15" max="64">
+            </section>
+        </section>
     </section>
+
+    <audio id="buttonSFX">
+        <source src="assets/audio/UI/Click_stereo.mp3" type="audio/mpeg">
+    </audio> 
 </body>
 </html>

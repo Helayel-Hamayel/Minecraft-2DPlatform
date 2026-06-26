@@ -1,0 +1,125 @@
+* {
+    font-family: 'Minecraft', sans-serif;
+    font-weight: 400;
+    font-size: 48px;
+    color: white;
+    padding: 0;
+    margin: 0;
+    user-select: none;
+    text-decoration: none;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body { 
+    margin: 0; 
+    overflow: hidden; 
+    background: #1a1a1a; 
+}
+
+canvas { display: block; 
+    margin: 0 auto; 
+    background: #87CEEB; 
+}
+
+#gameMenu {
+    display: none; 
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100vw; 
+    height: 100vh; 
+    background: rgba(16, 16, 16, 0.75); 
+    
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 9999;
+}
+
+#gameMenu.active {
+    display: flex;
+}
+
+.hud-container {
+    position: fixed;
+    bottom: 40px;          
+    left: 50%;
+    transform: translateX(-50%) scale(3); 
+    transform-origin: bottom center;
+    image-rendering: pixelated; 
+    pointer-events: none; 
+    z-index: 9999;
+}
+
+.hotbar-wrapper {
+    position: relative;
+    width: 186px;          
+    height: 22px;          
+    background-image: url('../assets/images/spritesheets/widgets.png');
+    background-position: 0px 0px; 
+    background-repeat: no-repeat;
+    pointer-events: auto;  
+}
+
+.slots-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    padding-left: 3px;     
+    padding-top: 3px;
+    gap: 4px;              
+    box-sizing: border-box;
+}
+
+.slot {
+    width: 16px;           
+    height: 16px;
+    background-color: transparent; 
+    border: none;                  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.selector {
+    position: absolute;
+    top: -1px;             
+    left: -1px;
+    width: 24px;           
+    height: 24px;
+    background-image: url('../assets/images/spritesheets/widgets.png');
+    background-position: 0px -22px;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 10;
+    
+    transition: left 0.1s cubic-bezier(0.18, 0.89, 0.32, 1.28); 
+}
+
+.item-icon {
+    width: 16px;
+    height: 16px;
+    display: block;
+    image-rendering: pixelated;
+}
+
+.slot {
+    position: relative;
+}
+.item-count {
+    position: absolute;
+    bottom: 1px;
+    right: 2px;
+    font-family: 'Minecraft', sans-serif;
+    font-size: 8px;
+    color: white;
+    text-shadow: 1px 1px 0px #2c2c2c;
+    pointer-events: none;
+}
