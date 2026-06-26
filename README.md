@@ -37,7 +37,7 @@ Mine and build elements safely inside a precision-calculated interaction boundar
 
 ## 🎮 Controls
 
-| Action / Shortcut | Input Source | Technical System Behavior |
+| Action / Shortcut | Input Source |
 | :--- | :--- |
 | **Move Left / Right** | `A` / `D` or `Left` / `Right Arrow` | 
 | **Jump** | `Spacebar` / `W` / `Up Arrow` | 
