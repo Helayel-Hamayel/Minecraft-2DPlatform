@@ -273,6 +273,11 @@ window.addEventListener("keydown", e => {
     }
 });
 
+// --- ADD THIS RIGHT BELOW YOUR KEYDOWN LISTENER ---
+window.addEventListener("keyup", e => {
+    keys[e.code] = false;
+});
+
 //When Esc is pressed, and user picks Return to game.
 document.getElementById("btgButton").addEventListener("click", (e) => {
     e.preventDefault(); 
