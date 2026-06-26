@@ -350,283 +350,354 @@ function resize() {
 }
 
 function update() {
+  player.vx = 0;
+  if (keys["KeyA"] || keys["ArrowLeft"]) player.vx = -player.speed;
+  if (keys["KeyD"] || keys["ArrowRight"]) player.vx = player.speed;
+
+  player.x += player.vx;
+
+  if (checkCollision(player.x, player.y, false, false)) {
+    if (player.vx > 0) {
+      const rightCol = Math.floor((player.x + player.width) / BLOCK_SIZE);
+      player.x = rightCol * BLOCK_SIZE - player.width - 0.01;
+    } else if (player.vx < 0) {
+      const leftCol = Math.floor(player.x / BLOCK_SIZE);
+      player.x = (leftCol + 1) * BLOCK_SIZE + 0.01;
+    }
     player.vx = 0;
-    if (keys["KeyA"] || keys["ArrowLeft"]) player.vx = -player.speed;
-    if (keys["KeyD"] || keys["ArrowRight"]) player.vx = player.speed;
+  }
 
-    player.x += player.vx;
+  player.vy += player.gravity;
+  player.y += player.vy;
+  player.grounded = false;
 
-    if (checkCollision(player.x, player.y, false, false)) {
-        if (player.vx > 0) {
-            const rightCol = Math.floor((player.x + player.width) / BLOCK_SIZE);
-            player.x = (rightCol * BLOCK_SIZE) - player.width - 0.01;
-        } else if (player.vx < 0) {
-            const leftCol = Math.floor(player.x / BLOCK_SIZE);
-            player.x = (leftCol + 1) * BLOCK_SIZE + 0.01;
+  const crouching = keys["KeyS"] || keys["ArrowDown"];
+  if (checkCollision(player.x, player.y, true, crouching)) {
+    player.y -= player.vy;
+    if (player.vy > 0) player.grounded = true;
+    player.vy = 0;
+  }
+
+  if ((keys["Space"] || keys["KeyW"] || keys["ArrowUp"]) && player.grounded) {
+    const currentTime = Date.now();
+    if (currentTime - player.lastJumpTime >= 450) {
+      player.vy = player.jumpForce;
+      player.grounded = false;
+      player.lastJumpTime = currentTime;
+    }
+  }
+
+  waterTickCounter++;
+  if (waterTickCounter >= 5) {
+    updateWater();
+    waterTickCounter = 0;
+  }
+
+  updateClouds();
+
+  camera.x = player.x - camera.width / 2 + player.width / 2;
+  camera.y = player.y - camera.height / 2 + player.height / 2;
+
+  camera.x = Math.max(
+    0,
+    Math.min(camera.x, WORLD_WIDTH * BLOCK_SIZE - camera.width),
+  );
+  camera.y = Math.max(
+    0,
+    Math.min(camera.y, GRID_HEIGHT * BLOCK_SIZE - camera.height),
+  );
+
+  mouse.worldX = mouse.x + camera.x;
+  mouse.worldY = mouse.y + camera.y;
+
+  const mouseCol = Math.floor(mouse.worldX / BLOCK_SIZE);
+  const mouseRow = Math.floor(mouse.worldY / BLOCK_SIZE);
+
+  if (
+    mouseCol >= 0 &&
+    mouseCol < WORLD_WIDTH &&
+    mouseRow >= 0 &&
+    mouseRow < GRID_HEIGHT
+  ) {
+    const playerCenterX = player.x + player.width / 2;
+    const playerCenterY = player.y + player.height / 2;
+    const blockCenterX = mouseCol * BLOCK_SIZE + BLOCK_SIZE / 2;
+    const blockCenterY = mouseRow * BLOCK_SIZE + BLOCK_SIZE / 2;
+
+    const distance = Math.hypot(
+      blockCenterX - playerCenterX,
+      blockCenterY - playerCenterY,
+    );
+    const reachLimit = BLOCK_SIZE * 4;
+
+    if (distance <= reachLimit) {
+      const targetBlock = world[mouseCol][mouseRow];
+      const activeItem = hotbarState[activeSlotIndex];
+
+      // --- LEFT CLICK: MINING & SIMPLE COLLECTION ---
+      if (
+        mouse.isLeftClicked &&
+        targetBlock !== BLOCKS.AIR &&
+        targetBlock !== BLOCKS.BEDROCK &&
+        targetBlock !== BLOCKS.WORLDEDGE &&
+        targetBlock !== BLOCKS.WATER
+      ) {
+        const activeId = activeItem ? activeItem.id : null;
+
+        let dropId = null;
+        let dropName = null;
+        let requiredTool = null;
+        let isDestroyedCompletely = false;
+
+        // Determine what drop and tool are needed
+        if (targetBlock === BLOCKS.STONE) {
+          dropId = "stone";
+          dropName = "Cobblestone";
+          requiredTool = "pickaxe";
+        } else if (
+          targetBlock === BLOCKS.COAL ||
+          targetBlock === BLOCKS.IRON ||
+          targetBlock === BLOCKS.DIAMOND
+        ) {
+          let oreName = Object.keys(BLOCKS).find(
+            (key) => BLOCKS[key] === targetBlock,
+          );
+          dropId = oreName.toLowerCase();
+          dropName =
+            oreName.charAt(0) + oreName.slice(1).toLowerCase() + " Ore";
+          requiredTool = "pickaxe";
+        } else if (
+          targetBlock === BLOCKS.GRASS ||
+          targetBlock === BLOCKS.DIRT
+        ) {
+          dropId = "dirt";
+          dropName = "Dirt";
+          requiredTool = "shovel";
+        } else if (targetBlock === BLOCKS.WOOD) {
+          dropId = "wood";
+          dropName = "Oak Log";
+          requiredTool = "axe";
+        } else if (targetBlock === BLOCKS.LEAVES) {
+          dropId = "leaves";
+          dropName = "Leaves";
+          // If using an axe on leaves, destroy it completely with zero drops
+          if (activeId === "axe") {
+            isDestroyedCompletely = true;
+          }
         }
-        player.vx = 0; 
-    }
 
-    player.vy += player.gravity;
-    player.y += player.vy;
-    player.grounded = false;
-
-    const crouching = keys["KeyS"] || keys["ArrowDown"];
-    if (checkCollision(player.x, player.y, true, crouching)) {
-        player.y -= player.vy;
-        if (player.vy > 0) player.grounded = true; 
-        player.vy = 0;
-    }
-
-    if ((keys["Space"] || keys["KeyW"] || keys["ArrowUp"]) && player.grounded) {
-        const currentTime = Date.now();
-        if (currentTime - player.lastJumpTime >= 450) {
-            player.vy = player.jumpForce;
-            player.grounded = false;
-            player.lastJumpTime = currentTime; 
-        }
-    }
-
-    waterTickCounter++;
-    if (waterTickCounter >= 5) {
-        updateWater();
-        waterTickCounter = 0;
-    }
-
-    updateClouds();
-
-    camera.x = player.x - camera.width / 2 + player.width / 2;
-    camera.y = player.y - camera.height / 2 + player.height / 2;
-
-    camera.x = Math.max(0, Math.min(camera.x, WORLD_WIDTH * BLOCK_SIZE - camera.width));
-    camera.y = Math.max(0, Math.min(camera.y, GRID_HEIGHT * BLOCK_SIZE - camera.height));
-
-    mouse.worldX = mouse.x + camera.x;
-    mouse.worldY = mouse.y + camera.y; 
-
-    const mouseCol = Math.floor(mouse.worldX / BLOCK_SIZE);
-    const mouseRow = Math.floor(mouse.worldY / BLOCK_SIZE);
-
-    if (mouseCol >= 0 && mouseCol < WORLD_WIDTH && mouseRow >= 0 && mouseRow < GRID_HEIGHT) {
-        const playerCenterX = player.x + player.width / 2;
-        const playerCenterY = player.y + player.height / 2;
-        const blockCenterX = (mouseCol * BLOCK_SIZE) + BLOCK_SIZE / 2;
-        const blockCenterY = (mouseRow * BLOCK_SIZE) + BLOCK_SIZE / 2;
-
-        const distance = Math.hypot(blockCenterX - playerCenterX, blockCenterY - playerCenterY);
-        const reachLimit = BLOCK_SIZE * 3.5;
-
-        if (distance <= reachLimit) {
-            const targetBlock = world[mouseCol][mouseRow];
-            const activeItem = hotbarState[activeSlotIndex];
-
-            // --- LEFT CLICK: MINING & SIMPLE COLLECTION ---
-            if (mouse.isLeftClicked && targetBlock !== BLOCKS.AIR && targetBlock !== BLOCKS.BEDROCK && targetBlock !== BLOCKS.WORLDEDGE && targetBlock !== BLOCKS.WATER) {
-                const activeId = activeItem ? activeItem.id : null;
-
-                let dropId = null;
-                let dropName = null;
-                let requiredTool = null;
-                let isDestroyedCompletely = false;
-
-                // Determine what drop and tool are needed
-                if (targetBlock === BLOCKS.STONE) {
-                    dropId = "stone"; 
-                    dropName = "Cobblestone";
-                    requiredTool = "pickaxe";
-                } else if (targetBlock === BLOCKS.COAL || targetBlock === BLOCKS.IRON || targetBlock === BLOCKS.DIAMOND) {
-                    let oreName = Object.keys(BLOCKS).find(key => BLOCKS[key] === targetBlock);
-                    dropId = oreName.toLowerCase();
-                    dropName = oreName.charAt(0) + oreName.slice(1).toLowerCase() + " Ore";
-                    requiredTool = "pickaxe";
-                } else if (targetBlock === BLOCKS.GRASS || targetBlock === BLOCKS.DIRT) {
-                    dropId = "dirt"; 
-                    dropName = "Dirt";
-                    requiredTool = "shovel";
-                } else if (targetBlock === BLOCKS.WOOD) {
-                    dropId = "wood";
-                    dropName = "Oak Log";
-                    requiredTool = "axe";
-                } else if (targetBlock === BLOCKS.LEAVES) {
-                    dropId = "leaves";
-                    dropName = "Leaves";
-                    // If using an axe on leaves, destroy it completely with zero drops
-                    if (activeId === "axe") {
-                        isDestroyedCompletely = true;
-                    }
-                }
-
-                // If tool mismatch (and block requires a tool), freeze everything
-                if (requiredTool && requiredTool !== activeId) {
-                    mouse.breakProgress = 0; 
-                } else {
-                    if (mouse.targetCol !== mouseCol || mouse.targetRow !== mouseRow) {
-                        mouse.targetCol = mouseCol;
-                        mouse.targetRow = mouseRow;
-                        mouse.breakProgress = 0;
-                    }
-
-                    mouse.breakProgress += 2.5; 
-
-                    if (mouse.breakProgress >= 100) {
-                        // Only generate and pick up inventory item if it wasn't destroyed completely
-                        if (!isDestroyedCompletely) {
-                            let correspondingBlockId = targetBlock;
-                            if (targetBlock === BLOCKS.GRASS) correspondingBlockId = BLOCKS.DIRT; 
-
-                            let existingItem = hotbarState.find(item => item && item.id === dropId);
-                            
-                            if (existingItem) {
-                                existingItem.count++;
-                            } else {
-                                let emptyIndex = hotbarState.findIndex(item => item === null);
-                                if (emptyIndex !== -1) {
-                                    // let blockImgSrc = IMAGES[correspondingBlockId].src;
-                                    let blockImgSrc = (targetBlock === BLOCKS.STONE) 
-                                    ? "assets/images/texture/block/cobblestone.png" 
-                                    : IMAGES[correspondingBlockId].src;
-                                    hotbarState[emptyIndex] = new Item(dropId, dropName, blockImgSrc, correspondingBlockId, true);
-                                }
-                            }
-                        }
-
-                        world[mouseCol][mouseRow] = BLOCKS.AIR; 
-                        mouse.breakProgress = 0;
-                        renderHotbar(); 
-                    }
-                }
-            }
-
-            // --- RIGHT CLICK: SIMPLE ITEM PLACEMENT ---
-            else if (mouse.isRightClicked && targetBlock === BLOCKS.AIR) {
-                if (activeItem && activeItem.blockId !== null && activeItem.count > 0) {
-                    const overlapsPlayerX = (mouseCol * BLOCK_SIZE < player.x + player.width) && ((mouseCol + 1) * BLOCK_SIZE > player.x);
-                    const overlapsPlayerY = (mouseRow * BLOCK_SIZE < player.y + player.height) && ((mouseRow + 1) * BLOCK_SIZE > player.y);
-                    
-                    if (!(overlapsPlayerX && overlapsPlayerY)) {
-                        world[mouseCol][mouseRow] = activeItem.blockId; 
-                        activeItem.count--; 
-
-                        if (activeItem.count <= 0) {
-                            hotbarState[activeSlotIndex] = null;
-                        }
-
-                        renderHotbar();
-                        mouse.isRightClicked = false; 
-                    }
-                }
-            }
+        // If tool mismatch (and block requires a tool), freeze everything
+        if (requiredTool && requiredTool !== activeId) {
+          mouse.breakProgress = 0;
         } else {
+          if (mouse.targetCol !== mouseCol || mouse.targetRow !== mouseRow) {
+            mouse.targetCol = mouseCol;
+            mouse.targetRow = mouseRow;
             mouse.breakProgress = 0;
+          }
+
+          mouse.breakProgress += 2.5;
+
+          if (mouse.breakProgress >= 100) {
+            // Only generate and pick up inventory item if it wasn't destroyed completely
+            if (!isDestroyedCompletely) {
+              let correspondingBlockId = targetBlock;
+              if (targetBlock === BLOCKS.GRASS)
+                correspondingBlockId = BLOCKS.DIRT;
+
+              let existingItem = hotbarState.find(
+                (item) => item && item.id === dropId,
+              );
+
+              if (existingItem) {
+                existingItem.count++;
+              } else {
+                let emptyIndex = hotbarState.findIndex((item) => item === null);
+                if (emptyIndex !== -1) {
+                  // let blockImgSrc = IMAGES[correspondingBlockId].src;
+                  let blockImgSrc =
+                    targetBlock === BLOCKS.STONE
+                      ? "assets/images/texture/block/cobblestone.png"
+                      : IMAGES[correspondingBlockId].src;
+                  hotbarState[emptyIndex] = new Item(
+                    dropId,
+                    dropName,
+                    blockImgSrc,
+                    correspondingBlockId,
+                    true,
+                  );
+                }
+              }
+            }
+
+            world[mouseCol][mouseRow] = BLOCKS.AIR;
+            mouse.breakProgress = 0;
+            renderHotbar();
+          }
         }
+      }
+
+      // --- RIGHT CLICK: SIMPLE ITEM PLACEMENT ---
+      else if (mouse.isRightClicked && targetBlock === BLOCKS.AIR) {
+        if (activeItem && activeItem.blockId !== null && activeItem.count > 0) {
+          const overlapsPlayerX =
+            mouseCol * BLOCK_SIZE < player.x + player.width &&
+            (mouseCol + 1) * BLOCK_SIZE > player.x;
+          const overlapsPlayerY =
+            mouseRow * BLOCK_SIZE < player.y + player.height &&
+            (mouseRow + 1) * BLOCK_SIZE > player.y;
+
+          if (!(overlapsPlayerX && overlapsPlayerY)) {
+            world[mouseCol][mouseRow] = activeItem.blockId;
+            activeItem.count--;
+
+            if (activeItem.count <= 0) {
+              hotbarState[activeSlotIndex] = null;
+            }
+
+            renderHotbar();
+            mouse.isRightClicked = false;
+          }
+        }
+      }
     } else {
-        mouse.breakProgress = 0;
+      mouse.breakProgress = 0;
     }
+  } else {
+    mouse.breakProgress = 0;
+  }
 }
 
 function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.save();
-    ctx.translate(-Math.floor(camera.x), -Math.floor(camera.y));
-    ctx.strokeStyle = "rgba(0,0,0,0.1)";
+  ctx.save();
+  ctx.translate(-Math.floor(camera.x), -Math.floor(camera.y));
+  ctx.strokeStyle = "rgba(0,0,0,0.1)";
 
-    // --- DRAW BACKGROUND CLOUDS ---
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-    clouds.forEach(cloud => {
-        if (cloud.x + cloud.width > camera.x && cloud.x < camera.x + camera.width) {
-            ctx.beginPath();
-            ctx.roundRect(cloud.x, cloud.y, cloud.width, cloud.height, 6);
-            ctx.fill();
-        }
-    });
-
-    // --- EFFICIENT CULLING RENDER ---
-    const startCol = Math.max(0, Math.floor(camera.x / BLOCK_SIZE));
-    const endCol = Math.min(WORLD_WIDTH - 1, Math.floor((camera.x + camera.width) / BLOCK_SIZE) + 1);
-    const startRow = Math.max(0, Math.floor(camera.y / BLOCK_SIZE));
-    const endRow = Math.min(GRID_HEIGHT - 1, Math.floor((camera.y + camera.height) / BLOCK_SIZE) + 1);
-
-    for (let col = startCol; col <= endCol; col++) {
-        for (let row = startRow; row <= endRow; row++) {
-            const blockType = world[col][row];
-            if (blockType !== BLOCKS.AIR) {
-                const blockImg = IMAGES[blockType];
-                const drawX = Math.floor(col * BLOCK_SIZE);
-                const drawY = Math.floor(row * BLOCK_SIZE);
-
-                if (!settings.lowLagMode && LOADED_IMAGES[blockType]) {
-                    ctx.drawImage(blockImg, drawX, drawY, BLOCK_SIZE, BLOCK_SIZE);
-                } else {
-                    ctx.fillStyle = COLORS[blockType]; 
-                    ctx.fillRect(drawX, drawY, BLOCK_SIZE, BLOCK_SIZE);
-
-                    if (blockType !== BLOCKS.LEAVES && blockType !== BLOCKS.WATER) {
-                        ctx.strokeRect(drawX, drawY, BLOCK_SIZE, BLOCK_SIZE);
-                    }
-                }
-            }
-        }
+  // --- DRAW BACKGROUND CLOUDS ---
+  ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+  clouds.forEach((cloud) => {
+    if (cloud.x + cloud.width > camera.x && cloud.x < camera.x + camera.width) {
+      ctx.beginPath();
+      ctx.roundRect(cloud.x, cloud.y, cloud.width, cloud.height, 6);
+      ctx.fill();
     }
+  });
 
-    // --- DRAW PLAYER ---
-    const pixelSize = 32;
-    for (let i = 0; i < 3; i++) {
-        ctx.fillStyle = PLAYER_PIXELS[i];
-        ctx.fillRect(player.x, player.y + (i * pixelSize), player.width, pixelSize);
-    }
+  // --- EFFICIENT CULLING RENDER ---
+  const startCol = Math.max(0, Math.floor(camera.x / BLOCK_SIZE));
+  const endCol = Math.min(
+    WORLD_WIDTH - 1,
+    Math.floor((camera.x + camera.width) / BLOCK_SIZE) + 1,
+  );
+  const startRow = Math.max(0, Math.floor(camera.y / BLOCK_SIZE));
+  const endRow = Math.min(
+    GRID_HEIGHT - 1,
+    Math.floor((camera.y + camera.height) / BLOCK_SIZE) + 1,
+  );
 
-    // --- DRAW HOVER HIGHLIGHT BOX & CRACKS ---
-    const mouseCol = Math.floor(mouse.worldX / BLOCK_SIZE);
-    const mouseRow = Math.floor(mouse.worldY / BLOCK_SIZE);
+  for (let col = startCol; col <= endCol; col++) {
+    for (let row = startRow; row <= endRow; row++) {
+      const blockType = world[col][row];
+      if (blockType !== BLOCKS.AIR) {
+        const blockImg = IMAGES[blockType];
+        const drawX = Math.floor(col * BLOCK_SIZE);
+        const drawY = Math.floor(row * BLOCK_SIZE);
 
-    if (mouseCol >= 0 && mouseCol < WORLD_WIDTH && mouseRow >= 0 && mouseRow < GRID_HEIGHT) {
-        const playerCenterX = player.x + player.width / 2;
-        const playerCenterY = player.y + player.height / 2;
-        const blockCenterX = (mouseCol * BLOCK_SIZE) + BLOCK_SIZE / 2;
-        const blockCenterY = (mouseRow * BLOCK_SIZE) + BLOCK_SIZE / 2;
+        if (!settings.lowLagMode && LOADED_IMAGES[blockType]) {
+          ctx.drawImage(blockImg, drawX, drawY, BLOCK_SIZE, BLOCK_SIZE);
+        } else {
+          ctx.fillStyle = COLORS[blockType];
+          ctx.fillRect(drawX, drawY, BLOCK_SIZE, BLOCK_SIZE);
 
-        const distance = Math.hypot(blockCenterX - playerCenterX, blockCenterY - playerCenterY);
-        
-        if (distance <= BLOCK_SIZE * 3.5 && world[mouseCol][mouseRow] !== BLOCKS.AIR) {
-            const hX = mouseCol * BLOCK_SIZE;
-            const hY = mouseRow * BLOCK_SIZE;
-            
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
-            ctx.strokeRect(hX, hY, BLOCK_SIZE, BLOCK_SIZE);
-
-            if (mouse.breakProgress > 0) {
-                ctx.strokeStyle = "rgba(0, 0, 0, 0.75)"; 
-                ctx.lineWidth = 1.5;
-                ctx.beginPath();
-                
-                if (mouse.breakProgress > 15) {
-                    ctx.moveTo(hX + 10, hY + 16); ctx.lineTo(hX + 22, hY + 16);
-                    ctx.moveTo(hX + 16, hY + 10); ctx.lineTo(hX + 16, hY + 22);
-                }
-                if (mouse.breakProgress > 45) {
-                    ctx.moveTo(hX + 10, hY + 16); ctx.lineTo(hX + 4, hY + 8);
-                    ctx.moveTo(hX + 22, hY + 16); ctx.lineTo(hX + 28, hY + 24);
-                }
-                if (mouse.breakProgress > 75) {
-                    ctx.moveTo(hX + 16, hY + 10); ctx.lineTo(hX + 26, hY + 4);
-                    ctx.moveTo(hX + 16, hY + 22); ctx.lineTo(hX + 6, hY + 28);
-                }
-                ctx.stroke();
-            }
-            ctx.lineWidth = 1;
+          if (blockType !== BLOCKS.LEAVES && blockType !== BLOCKS.WATER) {
+            ctx.strokeRect(drawX, drawY, BLOCK_SIZE, BLOCK_SIZE);
+          }
         }
+      }
     }
+  }
 
-    ctx.restore(); 
-    
-    // --- HUD INDICATOR OVERLAY ---
-    ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
-    ctx.fillRect(10, 10, 190, 26);
-    ctx.fillStyle = "#FFF";
-    ctx.font = "12px sans-serif";
-    ctx.fillText(`Mode: ${settings.lowLagMode ? "SOLID BOXES" : "TEXTURED"} (Press L)`, 18, 27);
+  // --- DRAW PLAYER ---
+  const pixelSize = 32;
+  for (let i = 0; i < 3; i++) {
+    ctx.fillStyle = PLAYER_PIXELS[i];
+    ctx.fillRect(player.x, player.y + i * pixelSize, player.width, pixelSize);
+  }
+
+  // --- DRAW HOVER HIGHLIGHT BOX & CRACKS ---
+  const mouseCol = Math.floor(mouse.worldX / BLOCK_SIZE);
+  const mouseRow = Math.floor(mouse.worldY / BLOCK_SIZE);
+
+  if (
+    mouseCol >= 0 &&
+    mouseCol < WORLD_WIDTH &&
+    mouseRow >= 0 &&
+    mouseRow < GRID_HEIGHT
+  ) {
+    const playerCenterX = player.x + player.width / 2;
+    const playerCenterY = player.y + player.height / 2;
+    const blockCenterX = mouseCol * BLOCK_SIZE + BLOCK_SIZE / 2;
+    const blockCenterY = mouseRow * BLOCK_SIZE + BLOCK_SIZE / 2;
+
+    const distance = Math.hypot(
+      blockCenterX - playerCenterX,
+      blockCenterY - playerCenterY,
+    );
+
+    if (
+      distance <= BLOCK_SIZE * 4 &&
+      world[mouseCol][mouseRow] !== BLOCKS.AIR
+    ) {
+      const hX = mouseCol * BLOCK_SIZE;
+      const hY = mouseRow * BLOCK_SIZE;
+
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+      ctx.strokeRect(hX, hY, BLOCK_SIZE, BLOCK_SIZE);
+
+      if (mouse.breakProgress > 0) {
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.75)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+
+        if (mouse.breakProgress > 15) {
+          ctx.moveTo(hX + 10, hY + 16);
+          ctx.lineTo(hX + 22, hY + 16);
+          ctx.moveTo(hX + 16, hY + 10);
+          ctx.lineTo(hX + 16, hY + 22);
+        }
+        if (mouse.breakProgress > 45) {
+          ctx.moveTo(hX + 10, hY + 16);
+          ctx.lineTo(hX + 4, hY + 8);
+          ctx.moveTo(hX + 22, hY + 16);
+          ctx.lineTo(hX + 28, hY + 24);
+        }
+        if (mouse.breakProgress > 75) {
+          ctx.moveTo(hX + 16, hY + 10);
+          ctx.lineTo(hX + 26, hY + 4);
+          ctx.moveTo(hX + 16, hY + 22);
+          ctx.lineTo(hX + 6, hY + 28);
+        }
+        ctx.stroke();
+      }
+      ctx.lineWidth = 1;
+    }
+  }
+
+  ctx.restore();
+
+  // --- HUD INDICATOR OVERLAY ---
+  ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+  ctx.fillRect(10, 10, 190, 26);
+  ctx.fillStyle = "#FFF";
+  ctx.font = "12px sans-serif";
+  ctx.fillText(
+    `Mode: ${settings.lowLagMode ? "SOLID BOXES" : "TEXTURED"} (Press L)`,
+    18,
+    27,
+  );
 }
 
 function loop() {
@@ -719,12 +790,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 //--------------------------------------------
+//--------------------------------------------
 // change songs 
-let indexSong = 1; // tracking current song playing
+let indexSong = 0; // tracking current song playing
 const songs = ["[Muted]", "Sweden", "Alpha"]; 
 const songsPaths = ["", "assets/audio/Minecraft Music - Sweden.mp3", "assets/audio/Minecraft Music - Alpha.mp3"];
 const songPlayer = document.getElementById("game-music");
 const songButton = document.getElementById("songButton");
+
+// Set initial button text to match muted state on load
+songButton.innerHTML = `<span>Song Playing: ${songs[indexSong]}</span>`;
 
 songButton.addEventListener("click", (e) => {
     e.preventDefault(); 
@@ -734,15 +809,19 @@ songButton.addEventListener("click", (e) => {
         indexSong = 0;
     }
 
+    songButton.innerHTML = `<span>Song Playing: ${songs[indexSong]}</span>`;
+
     if (indexSong === 0) {
         songPlayer.pause();
         songPlayer.currentTime = 0;
-        songButton.innerHTML = `<span>Song Playing: ${songs[indexSong]}</span>`;
     } else {
-        songPlayer.src = songsPaths[indexSong];
-        songPlayer.load();
-
-        songButton.innerHTML = `<span>Song Playing: ${songs[indexSong]}</span>`;
+        const audioSource = songPlayer.querySelector("source");
+        if (audioSource) {
+            audioSource.src = songsPaths[indexSong];
+            songPlayer.load(); 
+            
+            songPlayer.play().catch(err => console.log("Audio playback blocked until user interacts."));
+        }
     }
 });
 
