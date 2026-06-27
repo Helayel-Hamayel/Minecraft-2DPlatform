@@ -19,97 +19,108 @@ const WORLD_WIDTH = parseInt(urlParams.get('width')) || 86;
 const SELECTED_BIOME = urlParams.get('biome') || 'Meadow';
 console.log(`Loading ${SELECTED_BIOME} with size: ${WORLD_WIDTH}x${GRID_HEIGHT}`);
 
+// to randomize tile/chunk generation, to avoid same thing but different texture when you refresh or restart the game
+const TERRAIN_OFFSET = Math.random() * 10000;
+
 // Engine settings
 const settings = {
     lowLagMode: false 
 };
 
 // Block Types Mapping
-const BLOCKS = { 
-    AIR:        0, 
-    GRASS:      1, 
-    DIRT:       2, 
-    STONE:      3, 
-    COAL:       4, 
-    IRON:       5, 
-    WOOD:       6, 
-    LEAVES:     7, 
-    BEDROCK:    8, 
-    WORLDEDGE:  9, 
-    DIAMOND:    10, 
-    WATER:      11,
+const BLOCKS = {
+  AIR: 0,
+  GRASS: 1,
+  DIRT: 2,
+  STONE: 3,
+  COAL: 4,
+  IRON: 5,
+  WOOD: 6,
+  LEAVES: 7,
+  BEDROCK: 8,
+  WORLDEDGE: 9,
+  DIAMOND: 10,
+  WATER: 11,
+  SAND: 12, // New block
+  SNOW: 13, // New block
+  ICE: 14, // New block
 };
 
 const COLORS = {
-    [BLOCKS.AIR]: "transparent",
-    [BLOCKS.GRASS]: "#5cc447",
-    [BLOCKS.DIRT]: "#85542a",
-    [BLOCKS.STONE]: "#737373",
-    [BLOCKS.COAL]: "#2b2b2b",
-    [BLOCKS.IRON]: "#d49b6a",
-    [BLOCKS.WOOD]: "#a66a38",
-    [BLOCKS.LEAVES]: "#318521",
-    [BLOCKS.BEDROCK]: "#404040",
-    [BLOCKS.WORLDEDGE]: "#00bcff",
-    [BLOCKS.DIAMOND]: "#33e3c2",
-    [BLOCKS.WATER]: "rgb(40, 100, 230)",
+  [BLOCKS.AIR]: "transparent",
+  [BLOCKS.GRASS]: "#5cc447",
+  [BLOCKS.DIRT]: "#85542a",
+  [BLOCKS.STONE]: "#737373",
+  [BLOCKS.COAL]: "#2b2b2b",
+  [BLOCKS.IRON]: "#d49b6a",
+  [BLOCKS.WOOD]: "#a66a38",
+  [BLOCKS.LEAVES]: "#318521",
+  [BLOCKS.BEDROCK]: "#404040",
+  [BLOCKS.WORLDEDGE]: "#00bcff",
+  [BLOCKS.DIAMOND]: "#33e3c2",
+  [BLOCKS.WATER]: "rgb(40, 100, 230)",
+  [BLOCKS.SAND]: "#e2c690",
+  [BLOCKS.SNOW]: "#f0f8ff",
+  [BLOCKS.ICE]: "#a5f2f3",
 };
 
 const IMAGES = {
-    [BLOCKS.GRASS]: new Image(),
-    [BLOCKS.DIRT]: new Image(),
-    [BLOCKS.STONE]: new Image(),
-    [BLOCKS.COAL]: new Image(),
-    [BLOCKS.IRON]: new Image(),
-    [BLOCKS.WOOD]: new Image(),
-    [BLOCKS.LEAVES]: new Image(),
-    [BLOCKS.BEDROCK]: new Image(),
-    [BLOCKS.WORLDEDGE]: new Image(),
-    [BLOCKS.DIAMOND]: new Image(),
-    [BLOCKS.WATER]: new Image(),
+  [BLOCKS.GRASS]: new Image(),
+  [BLOCKS.DIRT]: new Image(),
+  [BLOCKS.STONE]: new Image(),
+  [BLOCKS.COAL]: new Image(),
+  [BLOCKS.IRON]: new Image(),
+  [BLOCKS.WOOD]: new Image(),
+  [BLOCKS.LEAVES]: new Image(),
+  [BLOCKS.BEDROCK]: new Image(),
+  [BLOCKS.WORLDEDGE]: new Image(),
+  [BLOCKS.DIAMOND]: new Image(),
+  [BLOCKS.WATER]: new Image(),
+  [BLOCKS.SAND]: new Image(),
+  [BLOCKS.SNOW]: new Image(),
+  [BLOCKS.ICE]: new Image(),
 };
 
 // Set paths for every single block type
 IMAGES[BLOCKS.GRASS].src = "assets/images/texture/block/grass_block_side.png";
-IMAGES[BLOCKS.DIRT].src  = "assets/images/texture/block/dirt.png";
+IMAGES[BLOCKS.DIRT].src = "assets/images/texture/block/dirt.png";
 IMAGES[BLOCKS.STONE].src = "assets/images/texture/block/stone.png";
-IMAGES[BLOCKS.COAL].src  = "assets/images/texture/block/coal_ore.png";
-IMAGES[BLOCKS.IRON].src  = "assets/images/texture/block/iron_ore.png";
-IMAGES[BLOCKS.WOOD].src  = "assets/images/texture/block/oak_log.png";
+IMAGES[BLOCKS.COAL].src = "assets/images/texture/block/coal_ore.png";
+IMAGES[BLOCKS.IRON].src = "assets/images/texture/block/iron_ore.png";
+IMAGES[BLOCKS.WOOD].src = "assets/images/texture/block/oak_log.png";
 IMAGES[BLOCKS.LEAVES].src = "assets/images/texture/block/oak_leaves.png";
 IMAGES[BLOCKS.BEDROCK].src = "assets/images/texture/block/bedrock.png";
 IMAGES[BLOCKS.WORLDEDGE].src = "assets/images/texture/block/forceField.png";
 IMAGES[BLOCKS.DIAMOND].src = "assets/images/texture/block/diamond_ore.png";
 IMAGES[BLOCKS.WATER].src = "assets/images/texture/block/water.png";
+IMAGES[BLOCKS.SAND].src = "assets/images/texture/block/sand.png";
+IMAGES[BLOCKS.SNOW].src = "assets/images/texture/block/snow.png";
+IMAGES[BLOCKS.ICE].src = "assets/images/texture/block/ice.png";
 
 const LOADED_IMAGES = {};
-Object.keys(IMAGES).forEach(key => {
-    LOADED_IMAGES[key] = false;
-    IMAGES[key].onload = () => {
-        LOADED_IMAGES[key] = true;
-    };
+Object.keys(IMAGES).forEach((key) => {
+  LOADED_IMAGES[key] = false;
+  IMAGES[key].onload = () => {
+    LOADED_IMAGES[key] = true;
+  };
 });
 
 // --- PLAYER SETUP ---
 const player = {
-    x: 100,
-    y: 100,
-    width: 32,      
-    height: 96, // 3 blocks tall
-    vx: 0,
-    vy: 0,
-    speed: 3,
-    gravity: 0.3,
-    jumpForce: -9,
-    grounded: false,
-    lastJumpTime: 0 
+  x: 100,
+  y: 100,
+  width: 32,
+  height: 96, // 3 blocks tall
+  vx: 0,
+  vy: 0,
+  speed: 3,
+  gravity: 0.3,
+  jumpForce: -9,
+  grounded: false,
+  lastJumpTime: 0,
 };
 
-const PLAYER_PIXELS = [
-    "#eeb692", 
-    "#00afac", 
-    "#463ba4"  
-];
+const PLAYER_PIXELS = ["#eeb692", "#00afac", "#463ba4"];
 
 // --- CAMERA SETUP ---
 const camera = { x: 0, y: 0, width: canvas.width, height: canvas.height };
@@ -118,74 +129,74 @@ const camera = { x: 0, y: 0, width: canvas.width, height: canvas.height };
 const clouds = [];
 
 // --- MOUSE TRACKING ---
-const mouse = { 
-    x: 0, 
-    y: 0, 
-    worldX: 0, 
-    worldY: 0, 
-    isLeftClicked: false, 
-    isRightClicked: false,
-    targetCol: -1,
-    targetRow: -1,
-    breakProgress: 0 
+const mouse = {
+  x: 0,
+  y: 0,
+  worldX: 0,
+  worldY: 0,
+  isLeftClicked: false,
+  isRightClicked: false,
+  targetCol: -1,
+  targetRow: -1,
+  breakProgress: 0,
 };
 
 //--------------------------------------------
 
 // this disables menu poping up when you Right click
-window.addEventListener("contextmenu", e => e.preventDefault());
+window.addEventListener("contextmenu", (e) => e.preventDefault());
 
 // detect which mouse button is pressed
 // 0 is for Left Mouse Button.
 // 2 is for Right Mouse Button.
-window.addEventListener("mousedown", e => {
-    if (e.button === 0) mouse.isLeftClicked = true;
-    if (e.button === 2) mouse.isRightClicked = true;
+window.addEventListener("mousedown", (e) => {
+  if (e.button === 0) mouse.isLeftClicked = true;
+  if (e.button === 2) mouse.isRightClicked = true;
 });
 
 // detect which mouse button is released
-window.addEventListener("mouseup", e => {
-    if (e.button === 0) {
-        //if you stop clicking a block halfway through breaking it, 
-        //the cracks vanish and you have to start over.
-        mouse.isLeftClicked = false; 
-        mouse.breakProgress = 0; 
-    }
-    if (e.button === 2) mouse.isRightClicked = false;
+window.addEventListener("mouseup", (e) => {
+  if (e.button === 0) {
+    //if you stop clicking a block halfway through breaking it,
+    //the cracks vanish and you have to start over.
+    mouse.isLeftClicked = false;
+    mouse.breakProgress = 0;
+  }
+  if (e.button === 2) mouse.isRightClicked = false;
 });
 
 // Tracks the mouse position inside the game box to enforce the player's build and mine reach limits.
-window.addEventListener("mousemove", e => {
-    const rect = canvas.getBoundingClientRect();
-    mouse.x = e.clientX - rect.left;
-    mouse.y = e.clientY - rect.top;
+window.addEventListener("mousemove", (e) => {
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = e.clientX - rect.left;
+  mouse.y = e.clientY - rect.top;
 });
 
 //--------------------------------------------
 // Clouds, spawn them and move them across the screen
 function spawnClouds() {
-    for (let i = 0; i < 30; i++) {
-        clouds.push({
-            x: Math.random() * (WORLD_WIDTH * BLOCK_SIZE),
-            y: Math.random() * 120 + 20, 
-            width: Math.random() * 80 + 60,
-            height: Math.random() * 20 + 15,
-            speed: Math.random() * 0.2 + 0.1 
-        });
-    }
+  for (let i = 0; i < 30; i++) {
+    clouds.push({
+      x: Math.random() * (WORLD_WIDTH * BLOCK_SIZE),
+      y: Math.random() * 120 + 20,
+      width: Math.random() * 80 + 60,
+      height: Math.random() * 20 + 15,
+      speed: Math.random() * 0.2 + 0.1,
+    });
+  }
 }
 
 function updateClouds() {
-    clouds.forEach(cloud => {
-        cloud.x += cloud.speed;
-        if (cloud.x > WORLD_WIDTH * BLOCK_SIZE) {
-            cloud.x = -cloud.width;
-        }
-    });
+  clouds.forEach((cloud) => {
+    cloud.x += cloud.speed;
+    if (cloud.x > WORLD_WIDTH * BLOCK_SIZE) {
+      cloud.x = -cloud.width;
+    }
+  });
 }
 
 //--------------------------------------------
-// Procedural generated world
+// Procedural generated world (Randomized & Biome-Aware)
 const world = Array.from({ length: WORLD_WIDTH }, () => new Array(GRID_HEIGHT).fill(BLOCKS.AIR));
 
 function generateWorld() {
@@ -197,62 +208,88 @@ function generateWorld() {
             continue;
         }
 
-        const floorRow = Math.floor(12 + Math.sin(col * 0.1) * 3);
+        // Incorporates the random landscape offset so hills change every time you load
+        const floorRow = Math.floor(12 + Math.sin((col + TERRAIN_OFFSET) * 0.1) * 3);
         
         for (let row = 0; row < GRID_HEIGHT; row++) {
             if (row === GRID_HEIGHT - 1) {
                 world[col][row] = BLOCKS.BEDROCK;
+                continue;
             } 
-            else if (col >= 15 && col <= 20) {
+
+            // Pick standard blocks based on what biome string was sent
+            let surfaceBlock = BLOCKS.GRASS;
+            let fillerBlock = BLOCKS.DIRT;
+            let liquidBlock = BLOCKS.WATER;
+
+            if (SELECTED_BIOME === 'Desert') {
+                surfaceBlock = BLOCKS.SAND;
+                fillerBlock = BLOCKS.SAND;
+                liquidBlock = BLOCKS.WATER; 
+            } else if (SELECTED_BIOME === 'Snow') {
+                surfaceBlock = BLOCKS.SNOW;
+                fillerBlock = BLOCKS.DIRT;
+                liquidBlock = BLOCKS.ICE; // Frozen water pools
+            }
+
+            // --- GENERATE LIQUID POOLS / BASINS (Columns 15 to 20) ---
+            if (col >= 15 && col <= 20) {
                 if (row === floorRow) {
-                    world[col][row] = BLOCKS.WATER; 
+                    world[col][row] = liquidBlock; 
                 } else if (row === floorRow + 1) {
                     if (col === 15 || col === 20) {
-                        world[col][row] = BLOCKS.DIRT; 
+                        world[col][row] = fillerBlock; 
                     } else {
-                        world[col][row] = BLOCKS.WATER; 
+                        world[col][row] = liquidBlock; 
                     }
-                } else if (row === floorRow + 2) {
-                    world[col][row] = BLOCKS.DIRT; 
-                } else if (row > floorRow + 2 && row < floorRow + 5) {
-                    world[col][row] = BLOCKS.DIRT; 
+                } else if (row === floorRow + 2 || (row > floorRow + 2 && row < floorRow + 5)) {
+                    world[col][row] = fillerBlock; 
                 } else if (row >= floorRow + 5) {
-                    const rand = Math.random();
-                    if (row > 22 && rand < 0.02) world[col][row] = BLOCKS.DIAMOND;
-                    else if (rand < 0.05) world[col][row] = BLOCKS.COAL;
-                    else if (rand < 0.08) world[col][row] = BLOCKS.IRON;
-                    else world[col][row] = BLOCKS.STONE;
+                    generateUndergroundOres(col, row);
                 }
             } 
+            // --- GENERATE REGULAR LAYER TERRAIN ---
             else {
                 if (row === floorRow) {
-                    world[col][row] = BLOCKS.GRASS;
+                    world[col][row] = surfaceBlock;
                 } else if (row > floorRow && row < floorRow + 4) {
-                    world[col][row] = BLOCKS.DIRT;
+                    world[col][row] = fillerBlock;
                 } else if (row >= floorRow + 4) {
-                    const rand = Math.random();
-                    if (row > 22 && rand < 0.02) world[col][row] = BLOCKS.DIAMOND;
-                    else if (rand < 0.05) world[col][row] = BLOCKS.COAL;
-                    else if (rand < 0.08) world[col][row] = BLOCKS.IRON;
-                    else world[col][row] = BLOCKS.STONE;
+                    generateUndergroundOres(col, row);
                 }
             }
         }
 
-        if (col > 6 && col < WORLD_WIDTH - 6 && (col < 13 || col > 22)) {
-            if (Math.random() < 0.15 && world[col-1][floorRow] === BLOCKS.GRASS && world[col][floorRow] === BLOCKS.GRASS) {
-                world[col][floorRow - 1] = BLOCKS.WOOD;
-                world[col][floorRow - 2] = BLOCKS.WOOD;
-                world[col][floorRow - 3] = BLOCKS.WOOD;
-                
-                for (let lX = -1; lX <= 1; lX++) {
-                    world[col + lX][floorRow - 4] = BLOCKS.LEAVES;
-                    world[col + lX][floorRow - 5] = BLOCKS.LEAVES;
+        // --- TREE SPAWNING ---
+        // Don't grow green trees in a barren desert
+        if (SELECTED_BIOME !== 'Desert') {
+            if (col > 6 && col < WORLD_WIDTH - 6 && (col < 13 || col > 22)) {
+                if (Math.random() < 0.15 && 
+                   (world[col-1][floorRow] === BLOCKS.GRASS || world[col-1][floorRow] === BLOCKS.SNOW) && 
+                    (world[col][floorRow] === BLOCKS.GRASS || world[col][floorRow] === BLOCKS.SNOW)) {
+                    
+                    world[col][floorRow - 1] = BLOCKS.WOOD;
+                    world[col][floorRow - 2] = BLOCKS.WOOD;
+                    world[col][floorRow - 3] = BLOCKS.WOOD;
+                    
+                    for (let lX = -1; lX <= 1; lX++) {
+                        world[col + lX][floorRow - 4] = BLOCKS.LEAVES;
+                        world[col + lX][floorRow - 5] = BLOCKS.LEAVES;
+                    }
+                    world[col][floorRow - 6] = BLOCKS.LEAVES;
                 }
-                world[col][floorRow - 6] = BLOCKS.LEAVES;
             }
         }
     }
+}
+
+// Helper function to handle deep raw rock uniformity
+function generateUndergroundOres(col, row) {
+    const rand = Math.random();
+    if (row > 22 && rand < 0.02) world[col][row] = BLOCKS.DIAMOND;
+    else if (rand < 0.05) world[col][row] = BLOCKS.COAL;
+    else if (rand < 0.08) world[col][row] = BLOCKS.IRON;
+    else world[col][row] = BLOCKS.STONE;
 }
 
 //--------------------------------------------
@@ -260,93 +297,96 @@ function generateWorld() {
 // L : Toggle to swap between textures and flat colors
 // ESC: Pause the game
 const keys = {};
-window.addEventListener("keydown", e => {
-    keys[e.code] = true;
-    if (e.code === "KeyL") settings.lowLagMode = !settings.lowLagMode;
+window.addEventListener("keydown", (e) => {
+  keys[e.code] = true;
+  if (e.code === "KeyL") settings.lowLagMode = !settings.lowLagMode;
 
-    if (e.code === "Escape") {
-        playSfx(1);
-        isPaused = !isPaused;
-        const menu = document.getElementById("gameMenu");
-        if (isPaused) menu.classList.add("active");
-        else menu.classList.remove("active");
-    }
+  if (e.code === "Escape") {
+    playSfx(1);
+    isPaused = !isPaused;
+    const menu = document.getElementById("gameMenu");
+    if (isPaused) menu.classList.add("active");
+    else menu.classList.remove("active");
+  }
 });
 
 // --- ADD THIS RIGHT BELOW YOUR KEYDOWN LISTENER ---
-window.addEventListener("keyup", e => {
-    keys[e.code] = false;
+window.addEventListener("keyup", (e) => {
+  keys[e.code] = false;
 });
 
 //When Esc is pressed, and user picks Return to game.
 document.getElementById("btgButton").addEventListener("click", (e) => {
-    e.preventDefault(); 
-    isPaused = false;
-    document.getElementById("gameMenu").classList.remove("active");
+  e.preventDefault();
+  isPaused = false;
+  document.getElementById("gameMenu").classList.remove("active");
 });
 
 //--------------------------------------------
 // Collison detection
 function checkCollision(x, y, isFalling = false, isCrouching = false) {
-    const startCol = Math.floor(x / BLOCK_SIZE);
-    const endCol = Math.floor((x + player.width) / BLOCK_SIZE);
-    const startRow = Math.floor(y / BLOCK_SIZE);
-    const endRow = Math.floor((y + player.height) / BLOCK_SIZE);
+  const startCol = Math.floor(x / BLOCK_SIZE);
+  const endCol = Math.floor((x + player.width) / BLOCK_SIZE);
+  const startRow = Math.floor(y / BLOCK_SIZE);
+  const endRow = Math.floor((y + player.height) / BLOCK_SIZE);
 
-    for (let col = startCol; col <= endCol; col++) {
-        for (let row = startRow; row <= endRow; row++) {
-            if (world[col] && world[col][row] !== BLOCKS.AIR) {
-                const block = world[col][row];
+  for (let col = startCol; col <= endCol; col++) {
+    for (let row = startRow; row <= endRow; row++) {
+      if (world[col] && world[col][row] !== BLOCKS.AIR) {
+        const block = world[col][row];
 
-                if (block === BLOCKS.WOOD || block === BLOCKS.LEAVES || block === BLOCKS.WATER) {
-                    if (block === BLOCKS.WATER) continue;
-                    if (!isFalling || isCrouching) continue; 
-                    
-                    const blockTopY = row * BLOCK_SIZE;
-                    if (player.y + player.height - player.vy > blockTopY + 4) continue; 
-                }
-                return true; 
-            }
+        if (
+          block === BLOCKS.WOOD ||
+          block === BLOCKS.LEAVES ||
+          block === BLOCKS.WATER
+        ) {
+          if (block === BLOCKS.WATER) continue;
+          if (!isFalling || isCrouching) continue;
+
+          const blockTopY = row * BLOCK_SIZE;
+          if (player.y + player.height - player.vy > blockTopY + 4) continue;
         }
+        return true;
+      }
     }
-    return false;
+  }
+  return false;
 }
 
 //--------------------------------------------
 // Water
 function updateWater() {
-    for (let row = GRID_HEIGHT - 2; row >= 0; row--) {
-        for (let col = 1; col < WORLD_WIDTH - 1; col++) {
-            if (world[col][row] === BLOCKS.WATER) {
-                if (world[col][row + 1] === BLOCKS.AIR) {
-                    world[col][row + 1] = BLOCKS.WATER;
-                    world[col][row] = BLOCKS.AIR; 
-                } 
-                else if (world[col][row + 1] !== BLOCKS.WATER) {
-                    const spreadLeft = world[col - 1][row] === BLOCKS.AIR;
-                    const spreadRight = world[col + 1][row] === BLOCKS.AIR;
+  for (let row = GRID_HEIGHT - 2; row >= 0; row--) {
+    for (let col = 1; col < WORLD_WIDTH - 1; col++) {
+      if (world[col][row] === BLOCKS.WATER) {
+        if (world[col][row + 1] === BLOCKS.AIR) {
+          world[col][row + 1] = BLOCKS.WATER;
+          world[col][row] = BLOCKS.AIR;
+        } else if (world[col][row + 1] !== BLOCKS.WATER) {
+          const spreadLeft = world[col - 1][row] === BLOCKS.AIR;
+          const spreadRight = world[col + 1][row] === BLOCKS.AIR;
 
-                    if (spreadLeft && spreadRight) {
-                        if (Math.random() < 0.5) world[col - 1][row] = BLOCKS.WATER;
-                        else world[col + 1][row] = BLOCKS.WATER;
-                    } else if (spreadLeft) {
-                        world[col - 1][row] = BLOCKS.WATER;
-                    } else if (spreadRight) {
-                        world[col + 1][row] = BLOCKS.WATER;
-                    }
-                }
-            }
+          if (spreadLeft && spreadRight) {
+            if (Math.random() < 0.5) world[col - 1][row] = BLOCKS.WATER;
+            else world[col + 1][row] = BLOCKS.WATER;
+          } else if (spreadLeft) {
+            world[col - 1][row] = BLOCKS.WATER;
+          } else if (spreadRight) {
+            world[col + 1][row] = BLOCKS.WATER;
+          }
         }
+      }
     }
+  }
 }
 
 //--------------------------------------------
 // Engine setup and update
 function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = Math.min(GRID_HEIGHT * BLOCK_SIZE, window.innerHeight);
-    camera.width = canvas.width;
-    camera.height = canvas.height; 
+  canvas.width = window.innerWidth;
+  canvas.height = Math.min(GRID_HEIGHT * BLOCK_SIZE, window.innerHeight);
+  camera.width = canvas.width;
+  camera.height = canvas.height;
 }
 
 function update() {
@@ -454,6 +494,18 @@ function update() {
           dropId = "stone";
           dropName = "Cobblestone";
           requiredTool = "pickaxe";
+        } else if (targetBlock === BLOCKS.SAND) {
+          dropId = "sand";
+          dropName = "Sand";
+          requiredTool = "shovel"; // Shovel works best for sand
+        } else if (targetBlock === BLOCKS.SNOW) {
+          dropId = "snow";
+          dropName = "Snow Block";
+          requiredTool = "shovel"; // Shovel for snow
+        } else if (targetBlock === BLOCKS.ICE) {
+          dropId = "ice";
+          dropName = "Ice";
+          requiredTool = "pickaxe"; // Pickaxe to shatter ice
         } else if (
           targetBlock === BLOCKS.COAL ||
           targetBlock === BLOCKS.IRON ||
